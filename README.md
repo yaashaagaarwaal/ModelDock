@@ -1,103 +1,194 @@
-# Practical 01 --- Your MLOps Workbench
+# MLOps Workbench
 
-*A clean environment, a pinned library list, and a run that repeats itself*
+A practical environment for understanding the fundamentals of reproducible machine learning workflows.
 
-SCSE3040 Machine Learning Operations · Bennett University · Session 2026-27
+## Overview
 
-| | |
-|---|---|
-| Follows lectures | L01-L02 |
-| Course Outcome | CO1 |
-| Duration | 120 minutes |
-| Peak memory | ~250 MB |
-| Extra software | nothing beyond the course venv |
-| Marks | 10 |
+This project demonstrates a few foundational MLOps practices that help make machine learning experiments reliable, repeatable, and easier to reproduce across different environments.
 
-## Aim
+The workflow focuses on:
 
-1. Find out which Python is actually running your code.
-2. Write down the exact library versions your project needs.
-3. Make a program that gives the same answer every single time.
-4. Save your work in git with a proper first commit.
+* Managing an isolated Python environment
+* Identifying the Python interpreter used by a project
+* Tracking installed library versions
+* Creating pinned dependency files
+* Controlling randomness with deterministic seeds
+* Generating reproducible datasets
+* Creating file fingerprints for experiment tracking
+* Recording work with Git
 
-## Before you start
+## Why Reproducibility Matters
 
-- The course virtual environment is installed. If not, follow `labs/SETUP.md` first.
-- You have opened this notebook from inside the `labs/P01-workbench/` folder.
-- Nothing else. This is the first practical of the course.
+Machine learning experiments can produce different results when they are executed in different environments or at different times.
 
-## Background
+Differences in:
 
+* Python versions
+* Library versions
+* Random seeds
+* Dependencies
+* Input data
 
-**MLOps** (Machine Learning Operations) is the work of taking a model out of a
-notebook and keeping it running for real users. Almost every problem in that
-job comes from one sentence: *"but it works on my machine"*.
+can affect the final output.
 
-It works on your machine because your machine has a particular Python, with
-particular libraries, at particular versions. Your friend's machine has
-different ones. The server has different ones again. The same code then gives
-a different answer, or no answer at all.
+A reproducible workflow helps ensure that the same code, data, environment, and configuration can consistently produce the same result.
 
-Professionals solve this in three steps, and today you will do all three.
+## Project Structure
 
-1. **A virtual environment.** A private folder holding one Python and one set
-   of libraries, used by one project only. Installing something for this course
-   then cannot break another project on the same laptop.
-2. **A pinned requirements file.** A plain text list saying *exactly* which
-   version of each library you used --- `numpy==2.5.1`, not just `numpy`.
-   Anybody can then rebuild your environment.
-3. **A seed.** Machine learning uses random numbers: which rows go into
-   training, where a model starts. Random means *different every run*, which
-   means results you cannot check. Fixing the **seed** makes the randomness
-   repeat, so your result can be checked by someone else.
+```text
+P01-workbench/
+│
+├── P01.ipynb
+├── work/
+│   └── my_requirements.txt
+└── README.md
+```
 
-Together these give you **reproducibility**: same code plus same data plus same
-versions gives the same answer, on any machine, on any day. Everything else in
-this course is built on top of that.
+## Key Concepts
 
+### 1. Virtual Environment
 
-## What you will do
+The project uses an isolated Python environment so that its dependencies remain independent from other projects.
 
-1. **Which Python is running this notebook?**
-2. **What is installed in this environment?**
-3. **Freeze those versions into requirements.txt**
-4. **Random numbers change every time you ask**
-5. **A seed makes the randomness repeat**
-6. **Build the delivery dataset, twice**
-7. **Look at the data you just made**
-8. **Record what you ran**
-9. **Save your work in git**
+This helps avoid dependency conflicts and makes the development environment easier to reproduce.
 
-## Your turn
+### 2. Dependency Pinning
 
-- **T1 --- Change the seed.** The dataset was built with seed **42**. Build it with seed **7**
-- **T2 --- Write your own pinned requirements file.** Write a file `work/my_requirements.txt` containing exactly three lines,
-- **T3 --- Fingerprint a run.** Write a function `fingerprint(path)` that takes the path of a CSV file
+Required libraries are recorded with their exact versions.
 
-## What to submit
+Example:
 
-1. This notebook, with every cell run and its output visible.
-2. The file `work/my_requirements.txt` that you wrote in Task T2.
-3. A screenshot of the output of the last walkthrough cell (`git log`).
+```text
+numpy==2.5.1
+```
 
-## Marking
+Pinning dependencies makes it possible to recreate an environment with the same library versions.
 
-| What is marked | Marks |
-|---|---|
-| Walkthrough run end to end, outputs visible | 3 |
-| Task T1 --- seeds control randomness | 2 |
-| Task T2 --- a correctly pinned requirements file | 2 |
-| Task T3 --- a working fingerprint function | 3 |
-| **Total** | **10** |
+### 3. Random Seeds
 
-## Read more
+Machine learning workflows frequently use random number generation.
 
-- Python docs --- Virtual environments and packages --- <https://docs.python.org/3/tutorial/venv.html>
-- pip --- Requirements files --- <https://pip.pypa.io/en/stable/reference/requirements-file-format/>
-- NumPy --- Random generator and seeds --- <https://numpy.org/doc/stable/reference/random/generator.html>
-- Pro Git --- Getting started --- <https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup>
+Without a fixed seed, repeated executions can produce different results.
 
----
+For example:
 
-*Open `P01.ipynb` in Jupyter and work through it top to bottom.
-The notebook contains everything in this handout, plus the code.*
+```python
+import numpy as np
+
+rng = np.random.default_rng(42)
+```
+
+Using a fixed seed makes the generated results deterministic.
+
+### 4. Reproducible Dataset Generation
+
+The workflow generates a dataset using a controlled random generator and verifies that repeated executions produce consistent results.
+
+This provides a simple demonstration of deterministic experimentation.
+
+### 5. File Fingerprinting
+
+A fingerprint can be generated from a file to uniquely represent its contents.
+
+A common approach is to use a cryptographic hash such as SHA-256:
+
+```python
+import hashlib
+
+def fingerprint(path):
+    with open(path, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+```
+
+If the file contents change, its fingerprint also changes.
+
+This can be useful for tracking datasets and experiment artifacts.
+
+### 6. Git Version Control
+
+Git is used to record the project history and provide a reproducible record of changes.
+
+A typical workflow is:
+
+```bash
+git status
+git add .
+git commit -m "Initialize MLOps workbench"
+```
+
+## Workflow
+
+The notebook follows this sequence:
+
+1. Identify the active Python interpreter
+2. Inspect the installed environment
+3. Record dependency versions
+4. Create a pinned requirements file
+5. Demonstrate uncontrolled randomness
+6. Introduce deterministic random seeds
+7. Generate reproducible data
+8. Inspect the generated dataset
+9. Generate a file fingerprint
+10. Record the project state with Git
+
+## Requirements
+
+The project is designed to run inside a Python virtual environment.
+
+Install the required dependencies using:
+
+```bash
+pip install -r work/my_requirements.txt
+```
+
+## Running the Notebook
+
+Start Jupyter from the project environment:
+
+```bash
+jupyter notebook
+```
+
+Then open:
+
+```text
+P01.ipynb
+```
+
+Run the notebook from top to bottom so that all outputs are generated in sequence.
+
+## Reproducibility
+
+The project follows the basic reproducibility principle:
+
+```text
+Same Code
+   +
+Same Data
+   +
+Same Dependencies
+   +
+Same Configuration
+   ↓
+Reproducible Result
+```
+
+This forms the foundation for more advanced MLOps practices such as experiment tracking, model versioning, automated pipelines, and deployment.
+
+## Learning Outcomes
+
+After completing this project, you should understand:
+
+* Why isolated environments are useful
+* Why dependency versions should be pinned
+* How random seeds affect machine learning experiments
+* How deterministic data generation works
+* How file hashes can identify artifacts
+* How Git contributes to reproducible workflows
+
+## References
+
+* Python Virtual Environments
+* pip Requirements Files
+* NumPy Random Number Generation
+* Git Version Control
